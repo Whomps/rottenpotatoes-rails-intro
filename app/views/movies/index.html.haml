@@ -4,9 +4,9 @@
 %table#movies
   %thead
     %tr
-      %th Movie Title
+      %th{:id => 'title_header', :class => hilite_helper('title')}=  sort_table "title", "Movie Title"
       %th Rating
-      %th Release Date
+      %th{:id => 'release_date_header', :class => hilite_helper('release_date')}= sort_table "release_date", "Release Date"
       %th More Info
   %tbody
     - @movies.each do |movie|
