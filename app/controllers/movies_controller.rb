@@ -11,10 +11,14 @@ class MoviesController < ApplicationController
   end
 
   def index
-	if params[:sort].nil? || params[:direction].nil?
-      @movies = Movie.all
-	else
-      @movies = Movie.order(params[:sort] + " " + params[:direction])
+    @all_ratings = ['G', 'PG', 'PG-13', 'R']	# is here the best place for this?
+	
+	if params[:ratings].nil? 	# if no show-ratings selected
+	  @movies = Movie.none		# return nothing
+	elsif params[:sort].nil? || params[:direction].nil?		# if no sort selected
+	  @movies = Movie.where("rating IN (?)", params[:ratings].each_key)
+	else						# ratings selected AND sort selected
+      @movies = Movie.where("rating IN (?)", params[:ratings].each_key).order(params[:sort] + " " + params[:direction]) # injection vuln here!
 	end
   end
   
