@@ -12,6 +12,13 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = ['G', 'PG', 'PG-13', 'R']	# is here the best place for this?
+	@my_ratings = (params[:ratings].present? ? params[:ratings] : [])  # maintain checkboxes
+	
+	#if @new_visit == true	# This does not work if you delete cookies
+	#  @my_ratings = @all_ratings 	# enable all checkboxes for new users
+	#  @new_visit = false
+	#end
+	# The above won't work for me in FireFox, but sometimes works in Chrome?
 	
 	if params[:ratings].nil? 	# if no show-ratings selected
 	  @movies = Movie.none		# return nothing
@@ -20,7 +27,7 @@ class MoviesController < ApplicationController
 	else						# ratings selected AND sort selected
       @movies = Movie.where("rating IN (?)", params[:ratings].each_key).order(params[:sort] + " " + params[:direction]) # injection vuln here!
 	end
-  end
+  end # I assume it is desired for sorting to reset if querying a new set of ratings
   
   def new
     # default: render 'new' template
