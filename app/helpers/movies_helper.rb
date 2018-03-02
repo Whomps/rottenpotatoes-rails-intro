@@ -12,7 +12,7 @@ module MoviesHelper
 	end
   end
   
-  def sort_table(column, title = nil)
+  def sort_table(column, title)
     title ||= column.titlecase
     direction = (column == params[:sort] && params[:direction] == "asc") ? "desc" : "asc"
     link_to title, :sort => column, :direction => direction 
