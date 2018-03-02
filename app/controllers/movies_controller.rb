@@ -12,7 +12,14 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = ['G', 'PG', 'PG-13', 'R']	# is here the best place for this?
-	@my_ratings = (params[:ratings].present? ? params[:ratings] : [])  # maintain checkboxes
+	
+	if params[:ratings].present?
+	  @my_ratings = (params[:ratings].present? ? params[:ratings].each_key : [])  # maintain checkboxes
+	  printf "\nParams present\n"
+	else
+	  @my_ratings = @all_ratings
+	  printf "\nParams NOT present\n"
+	end
 	
 	#if @new_visit == true	# This does not work if you delete cookies
 	#  @my_ratings = @all_ratings 	# enable all checkboxes for new users
@@ -20,12 +27,12 @@ class MoviesController < ApplicationController
 	#end
 	# The above won't work for me in FireFox, but sometimes works in Chrome?
 	
-	if params[:ratings].nil? 	# if no show-ratings selected
+	if not @my_ratings.present? 	# if no show-ratings selected (never occurs after addition of the above section)
 	  @movies = Movie.none		# return nothing
 	elsif params[:sort].nil? || params[:direction].nil?		# if no sort selected
-	  @movies = Movie.where("rating IN (?)", params[:ratings].each_key)
+	  @movies = Movie.where("rating IN (?)", @my_ratings.each_entry)
 	else						# ratings selected AND sort selected
-      @movies = Movie.where("rating IN (?)", params[:ratings].each_key).order(params[:sort] + " " + params[:direction]) # injection vuln here!
+      @movies = Movie.where("rating IN (?)", @my_ratings.each_entry).order(params[:sort] + " " + params[:direction]) # injection vuln here!
 	end
   end # I assume it is desired for sorting to reset if querying a new set of ratings
   

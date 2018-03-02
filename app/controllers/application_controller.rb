@@ -6,7 +6,10 @@ class ApplicationController < ActionController::Base
   before_action :new_visitor, unless: -> { cookies[:first_visit] } 
   
   def new_visitor
-    cookies.permanent[:new_visit] = 1
-	@new_visit = true
+    #cookies.permanent[:new_visit] = 1
+	#@new_visit = true
+	
+	#@my_ratings = ['G', 'PG', 'PG-13', 'R']
+	
   end
 end
