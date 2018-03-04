@@ -11,7 +11,7 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @all_ratings = ['G', 'PG', 'PG-13', 'R']	# is here the best place for this?
+    @all_ratings = ['G', 'PG', 'PG-13', 'R', 'NC-17']	# is here the best place for this?
 
 	
 	if params[:sort].present? == false && params[:direction].present? == false && params[:ratings].present? == false && params[:new].present? == false
