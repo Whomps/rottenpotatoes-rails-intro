@@ -12,28 +12,56 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = ['G', 'PG', 'PG-13', 'R']	# is here the best place for this?
+
 	
-	if params[:ratings].present?
-	  @my_ratings = (params[:ratings].present? ? params[:ratings].each_key : [])  # maintain checkboxes
-	  printf "\nParams present\n"
-	else
-	  @my_ratings = @all_ratings
-	  printf "\nParams NOT present\n"
+	if params[:sort].present? == false && params[:direction].present? == false && params[:ratings].present? == false && params[:new].present? == false
+	  redirect_to action: :index, :sort => session[:sort], :direction => session[:direction], :ratings => session[:ratings], :new => "yes" and return
 	end
 	
-	#if @new_visit == true	# This does not work if you delete cookies
-	#  @my_ratings = @all_ratings 	# enable all checkboxes for new users
-	#  @new_visit = false
+	#if request.referrer == request.original_url
+    #  printf "\n\nThis is my param sort: %s\n", params[:sort].to_s
+    #  printf "This is my param direction: %s\n", params[:direction].to_s
+    #  printf "This is my param ratings: %s\n", params[:ratings].to_s
+	#  printf "This is my session sort: %s\n", session[:sort].to_s
+	#  printf "This is my session sort: %s\n", session[:direction].to_s
+	#  printf "This is my session sort: %s\n\n", session[:ratings].to_s
+    #  redirect_to action: :index, :sort => session[:sort], :direction => session[:direction], :ratings => session[:ratings] and return
+    #elsif
+	#  printf "\n\nParams valid\n\n"
 	#end
-	# The above won't work for me in FireFox, but sometimes works in Chrome?
+		
+	params[:sort] ||= session[:sort]
+    params[:direction] ||= session[:direction]
+    params[:ratings] ||= session[:ratings]
+		
+	#Set my_ratings for filtering
+	if params[:ratings].present?
+	  @my_ratings = (params[:ratings].present? ? params[:ratings].each_key : [])  # maintain checkboxes
+	  #printf "\nParams present\n"
+	elsif session[:ratings].present?
+	  @my_ratings = (session[:ratings].present? ? session[:ratings].each_key : [])
+	  #printf "\nMIDDLE BOY\n"
+	else
+	  @my_ratings = @all_ratings
+	  #printf "\nParams NOT present\n"
+	end
 	
+	#Query DB
 	if not @my_ratings.present? 	# if no show-ratings selected (never occurs after addition of the above section)
 	  @movies = Movie.none		# return nothing
 	elsif params[:sort].nil? || params[:direction].nil?		# if no sort selected
+      #@session[:ratings] = params[:ratings] 
 	  @movies = Movie.where("rating IN (?)", @my_ratings.each_entry)
 	else						# ratings selected AND sort selected
+	  #@session[:ratings] = params[:ratings] 
       @movies = Movie.where("rating IN (?)", @my_ratings.each_entry).order(params[:sort] + " " + params[:direction]) # injection vuln here!
 	end
+	
+	session[:sort] = params[:sort]
+    session[:direction] = params[:direction]
+    session[:ratings] = params[:ratings]
+	#printf "\n\n~~~~~~~SESSION REDEFINED~~~~~~~~~~\n\n" 
+	
   end # I assume it is desired for sorting to reset if querying a new set of ratings
   
   def new
@@ -44,6 +72,7 @@ class MoviesController < ApplicationController
     @movie = Movie.create!(movie_params)
     flash[:notice] = "#{@movie.title} was successfully created."
     redirect_to movies_path
+	#redirect_to action: :index, :sort => session[:sort], :direction => session[:direction], :ratings => session[:ratings]
   end
 
   def edit
